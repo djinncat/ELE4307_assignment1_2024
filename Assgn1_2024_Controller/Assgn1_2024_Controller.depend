@@ -1,0 +1,35 @@
+# depslib dependency file v1.0
+1711791050 source:c:\users\u8009677\onedrive - usq\documents\ele3307\t2 2024\assignments\assignment 1\software\assgn1_2024_controller\assgn1_2024_controller\pnpcontrol.c
+	"pnpControl.h"
+
+1711791148 c:\users\u8009677\onedrive - usq\documents\ele3307\t2 2024\assignments\assignment 1\software\assgn1_2024_controller\assgn1_2024_controller\pnpcontrol.h
+	<stdio.h>
+	<stdlib.h>
+	<fcntl.h>
+	<sys/mman.h>
+	<unistd.h>
+	<time.h>
+	<pthread.h>
+	<termios.h>
+	<math.h>
+
+1711791050 source:c:\users\u8009677\onedrive - usq\documents\ele3307\t2 2024\assignments\assignment 1\software\assgn1_2024_controller\assgn1_2024_controller\pnpcontrolinterface.c
+	"pnpControl.h"
+
+1716395724 source:c:\users\thisi\desktop\ele4307\assignment1\ele4307_assign1_2024\assgn1_2024_controller\pnpcontrol.c
+	"pnpControl.h"
+
+1716395724 c:\users\thisi\desktop\ele4307\assignment1\ele4307_assign1_2024\assgn1_2024_controller\pnpcontrol.h
+	<stdio.h>
+	<stdlib.h>
+	<fcntl.h>
+	<sys/mman.h>
+	<unistd.h>
+	<time.h>
+	<pthread.h>
+	<termios.h>
+	<math.h>
+
+1716395724 source:c:\users\thisi\desktop\ele4307\assignment1\ele4307_assign1_2024\assgn1_2024_controller\pnpcontrolinterface.c
+	"pnpControl.h"
+
