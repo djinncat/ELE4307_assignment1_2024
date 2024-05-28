@@ -338,7 +338,7 @@ int main()
         /* reorder the centroid list and print details */
         for (int i = 0; i < number_of_components_to_place; i++)
         {
-            printf("Part %d details:\nDesignation: %s  Footprint: %s  Value: %.2f  x: %.2f  y: %.2f  theta: %.2f  Feeder: %d\n", i,
+            printf("Part %d details:\nDesignation: %s  Footprint: %s  Value: %.2f  x: %.2f  y: %.2f  theta: %.2f  Feeder: %d\n\n", i,
                 pi[i].component_designation, pi[i].component_footprint, pi[i].component_value,
                 pi[i].x_target, pi[i].y_target, pi[i].theta_target, pi[i].feeder);
 
@@ -392,7 +392,7 @@ for (i = 0; i < number_of_components_to_place; i++)
                         {
                             setTargetPos(TAPE_FEEDER_X[pi[part_counter].feeder]+20, TAPE_FEEDER_Y[pi[part_counter].feeder]); //go to the first feeder in the list, +20 for the left nozzle
                             state = MOVE_TO_FEEDER;
-                            printf("\nTime: %7.2f  New state: %.20s  Moving to tape feeder %d\n", getSimulationTime(), state_name[state], pi[part_counter].feeder);
+                            printf("Time: %7.2f  New state: %.20s  Moving to tape feeder %d\n", getSimulationTime(), state_name[state], pi[part_counter].feeder);
                         }
                     }
                     break;
@@ -523,7 +523,7 @@ for (i = 0; i < number_of_components_to_place; i++)
                             part_counter++;
                             Left_NozzleStatus = holdingpart;
                             nozzle_errors_to_check++;
-                            if (pi[part_counter].feeder >= 0 )
+                            if (pi[part_counter].feeder >=0 && pi[part_counter].feeder <= 9)
                             {
                                 setTargetPos(TAPE_FEEDER_X[pi[part_counter].feeder], TAPE_FEEDER_Y[pi[part_counter].feeder]);
                                 state = MOVE_TO_FEEDER;
@@ -542,11 +542,13 @@ for (i = 0; i < number_of_components_to_place; i++)
                             Left_NozzleStatus = not_holdingpart;
                             part_placed = FALSE;
                             lookdown_photo = FALSE;
+                            printf("Time: %7.2f             %19s  Part %d placed on PCB successfully\n\n", getSimulationTime(), " ", left_nozzle_part_num);
+
                             if (Centre_NozzleStatus == holdingpart)
                             {
                                 setTargetPos(pi[centre_nozzle_part_num].x_target, pi[centre_nozzle_part_num].y_target); //centre nozzle holding part_counter-1
                                 state = MOVE_TO_PCB;
-                                printf("Time: %7.2f  New state: %.20s  Part %d placed on PCB successfully, moving to next position\n\n", getSimulationTime(), state_name[state], left_nozzle_part_num);
+                                printf("Time: %7.2f  New state: %.20s  Moving to next position x: %3.2f y: %3.2f\n", getSimulationTime(), state_name[state],pi[centre_nozzle_part_num].x_target, pi[centre_nozzle_part_num].y_target);
                             }
 
                             else if(part_counter == number_of_components_to_place)
@@ -569,9 +571,9 @@ for (i = 0; i < number_of_components_to_place; i++)
                             part_counter++;
                             Centre_NozzleStatus = holdingpart;
                             nozzle_errors_to_check++;
-                            if(pi[part_counter].feeder >= 0)
+                            if(pi[part_counter].feeder >=0 && pi[part_counter].feeder <= 9)
                             {
-                                setTargetPos(TAPE_FEEDER_X[pi[part_counter].feeder]-20, TAPE_FEEDER_Y[pi[part_counter].feeder]);
+                                setTargetPos(TAPE_FEEDER_X[pi[part_counter].feeder]-20, TAPE_FEEDER_Y[pi[part_counter].feeder]);  //move to the next feeder for the right nozzle
                                 state = MOVE_TO_FEEDER;
                                 printf("Time: %7.2f  New state: %.20s  Moving to feeder %d\n", getSimulationTime(), state_name[state], pi[part_counter].feeder);
                             }
@@ -589,12 +591,13 @@ for (i = 0; i < number_of_components_to_place; i++)
                             Centre_NozzleStatus = not_holdingpart;
                             lookdown_photo = FALSE;
                             part_placed = FALSE;
+                            printf("Time: %7.2f             %19s  Part %d placed on PCB successfully\n\n", getSimulationTime(), state_name[state], centre_nozzle_part_num);
 
                             if (Right_NozzleStatus == holdingpart)
                             {
                                 setTargetPos(pi[right_nozzle_part_num].x_target, pi[right_nozzle_part_num].y_target); //right nozzle holding part_counter-1
                                 state = MOVE_TO_PCB;
-                                printf("Time: %7.2f  New state: %.20s  Part %d placed on PCB successfully, moving to next position\n\n", getSimulationTime(), state_name[state], centre_nozzle_part_num);
+                                printf("Time: %7.2f  New state: %.20s  Moving to next position x: %3.2f y: %3.2f\n", getSimulationTime(), state_name[state],pi[right_nozzle_part_num].x_target, pi[right_nozzle_part_num].y_target);
                             }
 
                             else if(part_counter == number_of_components_to_place)
@@ -614,6 +617,7 @@ for (i = 0; i < number_of_components_to_place; i++)
                     {
                         if (part_placed==FALSE)
                         {
+                            right_nozzle_part_num = part_counter;
                             part_counter++;
                             Right_NozzleStatus = holdingpart;
                             nozzle_errors_to_check++;
@@ -627,9 +631,21 @@ for (i = 0; i < number_of_components_to_place; i++)
                             Right_NozzleStatus = not_holdingpart;
                             lookdown_photo = FALSE;
                             part_placed = FALSE;
+                            printf("Time: %7.2f             %19s  Part %d placed on PCB successfully\n\n", getSimulationTime(), state_name[state], right_nozzle_part_num);
 
-                            state = HOME;
-                            printf("Time: %7.2f  New state: %.20s  Part %d placed on PCB successfully\n\n", getSimulationTime(), state_name[state], right_nozzle_part_num);
+                            if(part_counter == number_of_components_to_place)
+                            {
+                                setTargetPos(HOME_X,HOME_Y);
+                                state = MOVE_TO_HOME;
+                                printf("Time: %7.2f  New state: %.20s  Moving to home.\n", getSimulationTime(), state_name[state]);
+                            }
+                            else
+                            {
+                                state = HOME;
+                                printf("Time: %7.2f  New state: %.20s  Moving to next feeder\n\n", getSimulationTime(), state_name[state]);
+
+                            }
+
                         }
                     }
                     break;
@@ -686,7 +702,7 @@ for (i = 0; i < number_of_components_to_place; i++)
                         {
                             double errortheta = getPickErrorTheta(CENTRE_NOZZLE);  //acquire the part misalignment from the look-up photo
                             requested_theta_centre = pi[centre_nozzle_part_num].theta_target - errortheta;  //calculate misalignment of the part on the nozzle
-                            printf("Time: %7.2f             %19s  Centre part misalignment error: %3.2f  Correction required: %3.2fdegrees\n", getSimulationTime()," ", errortheta, requested_theta_centre);
+                            printf("Time: %7.2f             %19s  Centre part misalignment error: %3.2f  Correction required: %3.2f degrees\n", getSimulationTime()," ", errortheta, requested_theta_centre);
                             state = FIX_NOZZLE_ERROR;
                             printf("Time: %7.2f  New state: %.20s  Correction made to centre nozzle for part alignment\n", getSimulationTime(), state_name[state]);
                         }
