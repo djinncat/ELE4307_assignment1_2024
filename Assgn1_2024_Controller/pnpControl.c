@@ -339,7 +339,7 @@ int main()
         int state = HOME, part_counter = 0, nozzle_errors_to_check = 0, left_nozzle_part_num = 0,
             centre_nozzle_part_num = 0, right_nozzle_part_num = 0, component_num, req_target = 0;
         char part_placed = FALSE, Centre_NozzleStatus = not_holdingpart, Left_NozzleStatus = not_holdingpart,
-            Right_NozzleStatus = not_holdingpart, lookup_photo = FALSE, lookdown_photo = FALSE, preplace_errors_fixed = 0;
+            Right_NozzleStatus = not_holdingpart, lookup_photo = FALSE, lookdown_photo = FALSE;
         double requested_theta_left = 0, requested_theta_centre = 0, requested_theta_right = 0;  //the required angle theta of the nozzle position
         double preplace_diff_x = 0, preplace_diff_y = 0;  //difference in required gantry position and actual gantry position for preplacement
 
@@ -788,7 +788,6 @@ int main()
                 case FIX_PREPLACE_ERROR:
                     if (isSimulatorReadyForNextInstruction())
                     {
-                        preplace_errors_fixed++;  //counter to track preplace errors that have been corrected
                         if (Left_NozzleStatus == holdingpart)
                         {  //only need to apply correction if the nozzle is holding a part
                             lowerNozzle(LEFT_NOZZLE);
