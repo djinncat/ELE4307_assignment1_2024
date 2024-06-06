@@ -7,7 +7,7 @@
  *
  * Edited by: Kate Bowater
  * Student Number: U1019160
- * Last edit: 3 Jun 2024
+ * Last edit: 5 Jun 2024
  *
  */
 
@@ -88,7 +88,13 @@ int main()
         exit(res);
     }
 
-    /* state machine code for manual control mode */
+    /*
+    **********************************************
+
+    State machine code for Manual Control Mode
+
+    *********************************************
+    */
     if (operation_mode == MANUAL_CONTROL)
     {
         /* initialization of variables and controller window */
@@ -330,9 +336,16 @@ int main()
             }
             sleepMilliseconds((long) 1000 / POLL_LOOP_RATE);
         }
-    }
+    } // end of manual mode
 
-    /* state machine code for autonomous control mode */
+
+    /*
+    *****************************************************
+    *
+    *Autonomous control mode
+    *
+    ***************************************************
+    */
     else
     {
         /* initialization of variables and controller window */
@@ -350,25 +363,46 @@ int main()
         /* reorder the centroid list by feeder in ascending order and print details */
 
         int component_list[number_of_components_to_place];
-        int number_compare[number_of_components_to_place];
+        int feeder_num_compare[number_of_components_to_place];
+        int y_target_compare[number_of_components_to_place];
         int i, j, hold_value;
         for (i = 0; i < number_of_components_to_place; i++)
         {
-            number_compare[i] = pi[i].feeder;  //holds the feeder numbers
-            component_list[i] = i;  //holds the index of the feeder numbers
+            feeder_num_compare[i] = pi[i].feeder;  //holds the feeder numbers in the centroid file
+            y_target_compare[i] = pi[i].y_target;  // holds the y coord values in the centroid file
+            component_list[i] = i;  //holds the indexes that correlate to the values
         }
         for (i = 0; i < number_of_components_to_place; i++)
         {
             for (j = i+1; j < number_of_components_to_place; j++)
             {
-                if (number_compare[i] > number_compare[j])
-                {  //reorder the indexed numbers based on the feeder numbers
+                if (feeder_num_compare[i] > feeder_num_compare[j])
+                {  //reorder the indexed numbers based on the feeder numbers. Swaps the y-coords so they correlate
                     hold_value = component_list[i];
                     component_list[i] = component_list[j];
                     component_list[j] = hold_value;
-                    hold_value = number_compare[i];
-                    number_compare[i] = number_compare[j];
-                    number_compare[j] = hold_value;
+                    hold_value = feeder_num_compare[i];
+                    feeder_num_compare[i] = feeder_num_compare[j];
+                    feeder_num_compare[j] = hold_value;
+                    hold_value = y_target_compare[i];
+                    y_target_compare[i] = y_target_compare[j];
+                    y_target_compare[j] = hold_value;
+                }
+                // sort by ascending y-coordinates if the feeder numbers are the same
+                else if (feeder_num_compare[i] == feeder_num_compare[j])
+                {
+                    if (y_target_compare[i] > y_target_compare[j])
+                    {
+                        hold_value = component_list[i];
+                        component_list[i] = component_list[j];
+                        component_list[j] = hold_value;
+                        hold_value = y_target_compare[i];
+                        y_target_compare[i] = y_target_compare[j];
+                        y_target_compare[j] = hold_value;
+                        hold_value = feeder_num_compare[i];
+                        feeder_num_compare[i] = feeder_num_compare[j];
+                        feeder_num_compare[j] = hold_value;
+                    }
                 }
             }
         }
@@ -376,14 +410,11 @@ int main()
         for (int i = 0; i < number_of_components_to_place; i++)
         {
             component_num = component_list[i];
-            printf("Part %d details:\nDesignation: %s  Footprint: %s  Value: %.2f  x: %.2f  y: %.2f  theta: %.2f  Feeder: %d\n\n", component_num,
+            printf("Part %d:\nDesignation: %s  Footprint: %s  Value: %.2f  x: %.2f  y: %.2f  theta: %.2f  Feeder: %d\n\n", component_num,
                 pi[component_num].component_designation, pi[component_num].component_footprint, pi[component_num].component_value,
                 pi[component_num].x_target, pi[component_num].y_target, pi[component_num].theta_target, pi[component_num].feeder);
 
         }
-
-
-
 
 
 
@@ -398,14 +429,14 @@ int main()
 
                     if(isSimulatorReadyForNextInstruction())
                     {
-                        component_num = component_list[part_counter];  //hold the value of the part to be placed
+                        component_num = component_list[part_counter];  //hold the value of the part to be placed. The counter starts at zero
                         if(part_counter == number_of_components_to_place)
                         {
                           //Do nothing. Program is complete, wait for user to quit program.
                         }
                         else
-                        {
-                            setTargetPos(TAPE_FEEDER_X[pi[component_num].feeder]+20, TAPE_FEEDER_Y[pi[component_num].feeder]); //go to the first feeder in the list, +20 for the left nozzle
+                        { //go to the first feeder in the list, +20 for the left nozzle positioning
+                            setTargetPos(TAPE_FEEDER_X[pi[component_num].feeder]+20, TAPE_FEEDER_Y[pi[component_num].feeder]);
                             state = MOVE_TO_FEEDER;
                             printf("Time: %7.2f  New state: %.20s  Moving to tape feeder %d\n", getSimulationTime(), state_name[state], pi[component_num].feeder);
                         }
@@ -416,8 +447,8 @@ int main()
                     //waiting for the simulator to complete movement of the gantry
                     if (isSimulatorReadyForNextInstruction())
                     {
-                        if (Left_NozzleStatus == not_holdingpart)
-                        {  //left nozzle goes first due to order of the parts in ascending by feeder number
+                        if (Left_NozzleStatus == not_holdingpart) // if the nozzle is already holding a part, then skip to the next nozzle
+                        {  //left nozzle goes first due to order of the parts ascending by feeder number
                             lowerNozzle(LEFT_NOZZLE);
                             state = LOWER_LEFT_NOZZLE;
                             printf("Time: %7.2f  New state: %.20s  Arrived at feeder, lowering left nozzle\n", getSimulationTime(), state_name[state]);
@@ -532,24 +563,25 @@ int main()
 
                     if (isSimulatorReadyForNextInstruction())
                     {
-                        if (part_placed==FALSE)
+                        if (part_placed==FALSE) // applies when the nozzle has not just placed a part
                         {
-                            left_nozzle_part_num = component_num;  //storing the index of the next part number
+                            left_nozzle_part_num = component_num;  //storing the index of the part number from the reordered list
                             part_counter++;  //incrementing the number of parts that have been picked
                             component_num = component_list[part_counter];  //hold the index value of the next component
                             Left_NozzleStatus = holdingpart; //if a part hasn't just been placed then it is determined that a part has just been picked up
                             nozzle_errors_to_check++;  //the picked up part needs to be checked for alignment errors
-                            if (pi[part_counter].feeder >=0 && pi[part_counter].feeder <= 9) //this checks if there is another component in the list
-                            {  //if there is another feeder waiting, then go to the next feeder in the reordered list
-                                setTargetPos(TAPE_FEEDER_X[pi[component_num].feeder], TAPE_FEEDER_Y[pi[component_num].feeder]);
-                                state = MOVE_TO_FEEDER;
-                                printf("Time: %7.2f  New state: %.20s  Moving to feeder %d\n", getSimulationTime(), state_name[state], pi[component_num].feeder);
-                            }
-                            else
+                            if (part_counter == number_of_components_to_place)
                             {  //if there is no other feeder in the file, then go to the camera
                                 setTargetPos(LOOKUP_CAMERA_X,LOOKUP_CAMERA_Y);
                                 state = MOVE_TO_CAMERA;
                                 printf("Time: %7.2f  New state: %.20s  Part acquired, moving to look-up camera\n", getSimulationTime(), state_name[state]);
+                            }
+                            else
+                            {
+                                //if there is another feeder waiting, then go to the next feeder in the reordered list, positioned for the centre nozzle
+                                setTargetPos(TAPE_FEEDER_X[pi[component_num].feeder], TAPE_FEEDER_Y[pi[component_num].feeder]);
+                                state = MOVE_TO_FEEDER;
+                                printf("Time: %7.2f  New state: %.20s  Moving to feeder %d\n", getSimulationTime(), state_name[state], pi[component_num].feeder);
                             }
                         }
 
@@ -582,25 +614,24 @@ int main()
 
                     if (isSimulatorReadyForNextInstruction())
                     {
-                        if (part_placed==FALSE)
+                        if (part_placed==FALSE)  //applies if the nozzle has not just placed a part on the PCB
                         {
                             centre_nozzle_part_num = component_num;  //holding the indexed value of the component for the centre nozzle
                             part_counter++;  //increment the part counter to ensure number of components are accounted for
                             component_num = component_list[part_counter];  //hold the next part number index
                             Centre_NozzleStatus = holdingpart; //if a part hasn't just been placed, then it is determined that a part has just been picked up
                             nozzle_errors_to_check++;  //the part needs to be checked for alignment errors
-                            if(pi[part_counter].feeder >=0 && pi[part_counter].feeder <= 9)
-                            {   //if there is another feeder number waiting, then go to the next feeder
-                                setTargetPos(TAPE_FEEDER_X[pi[component_num].feeder]-20, TAPE_FEEDER_Y[pi[component_num].feeder]);  //move to the next feeder for the right nozzle
-                                state = MOVE_TO_FEEDER;
-                                printf("Time: %7.2f  New state: %.20s  Moving to feeder %d\n", getSimulationTime(), state_name[state], pi[component_num].feeder);
-                            }
-                            else
+                            if (part_counter == number_of_components_to_place)
                             {   //if no other feeder and no other parts to pick up, then go to the camera
                                 setTargetPos(LOOKUP_CAMERA_X,LOOKUP_CAMERA_Y);  //the gantry will move to the position above the camera
                                 state = MOVE_TO_CAMERA;
                                 printf("Time: %7.2f  New state: %.20s  Part acquired, moving to look-up camera\n", getSimulationTime(), state_name[state]);
-
+                            }
+                            else
+                            {   //if there is another feeder number waiting, then go to the next feeder
+                                setTargetPos(TAPE_FEEDER_X[pi[component_num].feeder]-20, TAPE_FEEDER_Y[pi[component_num].feeder]);  //move to the next feeder for the right nozzle
+                                state = MOVE_TO_FEEDER;
+                                printf("Time: %7.2f  New state: %.20s  Moving to feeder %d\n", getSimulationTime(), state_name[state], pi[component_num].feeder);
                             }
                         }
 
@@ -634,14 +665,14 @@ int main()
 
                     if (isSimulatorReadyForNextInstruction())
                     {
-                        if (part_placed==FALSE)
+                        if (part_placed==FALSE)  // applies if the nozzle hasn't just placed a part on the PCB
                         {
                             right_nozzle_part_num = component_num;  //storing the indexed value of the component
-                            part_counter++;  //keeping a counter on the number of parts that have been picked
+                            part_counter++;  //keeping a counter on the number of parts that have been picked up
                             component_num = component_list[part_counter];  //storing the next part index
                             Right_NozzleStatus = holdingpart;//once nozzle is raised, if a part hasn't just been placed, then it is determined that a part has just been picked up
                             nozzle_errors_to_check++;  //right nozzle needs to be checked for alignment errors
-                            setTargetPos(LOOKUP_CAMERA_X,LOOKUP_CAMERA_Y);  //the gantry will move to the position above the camera
+                            setTargetPos(LOOKUP_CAMERA_X,LOOKUP_CAMERA_Y);  //the right nozzle is the last to pick up a part, so the gantry will move to the camera
                             state = MOVE_TO_CAMERA;
                             printf("Time: %7.2f  New state: %.20s  All parts acquired, moving to look-up camera\n", getSimulationTime(), state_name[state]);
                         }
@@ -739,7 +770,7 @@ int main()
                         else
                         {  //if no more nozzle errors to check, then reset the photo variable and go to the PCB to place parts
                             lookup_photo = FALSE;
-                            req_target = left_nozzle_part_num;  //this is needed to obtain and calculate the relevant misalignment errors later
+                            req_target = left_nozzle_part_num;  //this is needed to obtain and calculate the relevant misalignment errors
                             setTargetPos(pi[left_nozzle_part_num].x_target, pi[left_nozzle_part_num].y_target);
                             state = MOVE_TO_PCB;
                             printf("Time: %7.2f  New state: %.20s  No furthers errors. Moving to PCB\n", getSimulationTime(), state_name[state]);

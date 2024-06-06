@@ -2,19 +2,19 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Release" />
-	<File name="pnpControlInterface.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3905" topLine="590" />
-		</Cursor>
-	</File>
 	<File name="pnpControl.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="2727" topLine="0" />
 		</Cursor>
 	</File>
+	<File name="pnpControlInterface.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3905" topLine="590" />
+		</Cursor>
+	</File>
 	<File name="pnpControl.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="34398" topLine="579" />
+			<Cursor1 position="52698" topLine="834" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
